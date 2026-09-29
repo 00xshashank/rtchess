@@ -3,7 +3,6 @@ package auth
 import (
 	"errors"
 
-	"github.com/00xshashank/rtchess/backend/db"
 	"github.com/00xshashank/rtchess/backend/types"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -12,23 +11,14 @@ func hashPassword(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), 10)
 }
 
-func checkPasswordHash(password string, hash string) (bool, error) {
-	pass_hash, pass_err := bcrypt.GenerateFromPassword([]byte(password), 10)
-	if pass_err != nil {
-		return false, pass_err
+func checkPasswordHash(password []byte, hash []byte) bool {
+	err := bcrypt.CompareHashAndPassword(hash, password)
+
+	if err != nil {
+		return false
 	}
 
-	return (string(pass_hash) == hash), nil
-}
-
-func signup(user types.User) error {
-	hashed_password, pwd_err := hashPassword(user.Password)
-	if pwd_err != nil {
-		return pwd_err
-	}
-
-	user.Password = string(hashed_password)
-	return db.AddUser(user)
+	return true
 }
 
 func checkUserValidity(user types.User) error {

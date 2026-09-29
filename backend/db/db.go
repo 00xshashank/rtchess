@@ -40,8 +40,13 @@ func AddUser(user types.User) error {
 	return nil
 }
 
-func GetUser(username string) types.User {
+func GetUser(username string) (types.User, error) {
 	var user types.User
-	db.First(&user, "username = ?", username)
-	return user
+
+	result := db.First(&user, "username = ?", username)
+	if result.Error != nil {
+		return types.User{}, result.Error
+	}
+
+	return user, nil
 }

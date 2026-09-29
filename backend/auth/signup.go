@@ -6,8 +6,19 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/00xshashank/rtchess/backend/db"
 	"github.com/00xshashank/rtchess/backend/types"
 )
+
+func signup(user types.User) error {
+	hashed_password, pwd_err := hashPassword(user.Password)
+	if pwd_err != nil {
+		return pwd_err
+	}
+
+	user.Password = string(hashed_password)
+	return db.AddUser(user)
+}
 
 func SignupHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
@@ -38,8 +49,6 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-
-	log.Printf("Decoded user: %v", user)
 
 	check_err := checkUserValidity(user)
 	if check_err != nil {

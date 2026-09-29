@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+
+	"github.com/00xshashank/rtchess/backend/db"
 )
 
 type loginRequest struct {
-	username string
-	password string
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -33,13 +35,28 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var user loginRequest
-	json_err := json.Unmarshal(body, &user)
+	var login loginRequest
+	json_err := json.Unmarshal(body, &login)
 	if json_err != nil {
 		log.Printf("Error while decoding JSON in login handler: %s\n", json_err)
 		w.WriteHeader(400)
 		return
 	}
 
-	// pass_match, pass_err := checkPasswordHash(user.password, )
+	user, user_err := db.GetUser(login.Username)
+	if user_err != nil {
+		log.Printf("Error while retrieving user for login: %s\n", user_err)
+		w.WriteHeader(200)
+		w.Write([]byte("false"))
+		return
+	}
+
+	pass_match := checkPasswordHash([]byte(login.Password), []byte(user.Password))
+
+	w.WriteHeader(200)
+	if pass_match {
+		w.Write([]byte("true"))
+	} else {
+		w.Write([]byte("false"))
+	}
 }
