@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/00xshashank/rtchess/backend/auth"
+	"github.com/00xshashank/rtchess/backend/db"
 	"github.com/joho/godotenv"
 )
 
@@ -16,7 +18,7 @@ func init() {
 		return
 	}
 
-	db_err := InitDB()
+	db_err := db.InitDB()
 	if db_err != nil {
 		fmt.Printf("Failed to initialize database: %s\n", db_err)
 		os.Exit(124)
@@ -27,8 +29,8 @@ func main() {
 	PORT := 3000
 
 	muxer := http.NewServeMux()
-	muxer.HandleFunc("/signup", SignupHandler)
-	muxer.HandleFunc("/login", LoginHandler)
+	muxer.HandleFunc("/signup", auth.SignupHandler)
+	muxer.HandleFunc("/login", auth.LoginHandler)
 
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", PORT),

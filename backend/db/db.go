@@ -1,9 +1,10 @@
-package main
+package db
 
 import (
 	"fmt"
 	"os"
 
+	"github.com/00xshashank/rtchess/backend/types"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -30,7 +31,7 @@ func InitDB() error {
 	return nil
 }
 
-func AddUser(user User) error {
+func AddUser(user types.User) error {
 	result := db.Create(&user)
 	if result.Error != nil {
 		return result.Error
@@ -39,8 +40,8 @@ func AddUser(user User) error {
 	return nil
 }
 
-func GetUser(username string) User {
-	var user User
+func GetUser(username string) types.User {
+	var user types.User
 	db.First(&user, "username = ?", username)
 	return user
 }

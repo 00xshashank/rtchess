@@ -1,4 +1,4 @@
-module example.com
+module github.com/00xshashank/rtchess/backend
 
 go 1.26.3
 
