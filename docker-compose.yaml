@@ -1,0 +1,10 @@
+services:
+  db:
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=dbadmin
+      - POSTGRES_PASSWORD=givememypassport
+    volumes:
+      - ./containers/postgres:/var/lib/postgresql
