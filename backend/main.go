@@ -31,6 +31,7 @@ func main() {
 	muxer := http.NewServeMux()
 	muxer.HandleFunc("/signup", auth.SignupHandler)
 	muxer.HandleFunc("/login", auth.LoginHandler)
+	muxer.HandleFunc("/getuser", auth.GetUserHandler)
 
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", PORT),

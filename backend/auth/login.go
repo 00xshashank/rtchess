@@ -8,11 +8,6 @@ import (
 	"github.com/00xshashank/rtchess/backend/db"
 )
 
-type loginRequest struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		w.WriteHeader(405)
@@ -43,7 +38,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, user_err := db.GetUser(login.Username)
+	user, user_err := db.GetUserFromDB(login.Username)
 	if user_err != nil {
 		log.Printf("Error while retrieving user for login: %s\n", user_err)
 		w.WriteHeader(200)
@@ -53,8 +48,22 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	pass_match := checkPasswordHash([]byte(login.Password), []byte(user.Password))
 
-	w.WriteHeader(200)
 	if pass_match {
+		token, token_err := getJWT(user)
+		if token_err != nil {
+			log.Printf("Error while getting JWT: %s\n", token_err)
+
+			return
+		}
+
+		cookie := http.Cookie{
+			Name:  "chesslocal",
+			Value: token,
+		}
+
+		http.SetCookie(w, &cookie)
+		log.Printf("Set cookie: %s\n", &cookie)
+
 		w.Write([]byte("true"))
 	} else {
 		w.Write([]byte("false"))

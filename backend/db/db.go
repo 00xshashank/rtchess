@@ -19,7 +19,6 @@ func InitDB() error {
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_NAME"),
 	)
-	// fmt.Printf("dsn: %s\n", dsn)
 
 	var db_err error
 	db, db_err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -28,10 +27,12 @@ func InitDB() error {
 		return db_err
 	}
 
+	db.AutoMigrate(&types.UserModel{})
+
 	return nil
 }
 
-func AddUser(user types.User) error {
+func AddUserToDB(user types.UserModel) error {
 	result := db.Create(&user)
 	if result.Error != nil {
 		return result.Error
@@ -40,12 +41,12 @@ func AddUser(user types.User) error {
 	return nil
 }
 
-func GetUser(username string) (types.User, error) {
-	var user types.User
+func GetUserFromDB(username string) (types.UserModel, error) {
+	var user types.UserModel
 
 	result := db.First(&user, "username = ?", username)
 	if result.Error != nil {
-		return types.User{}, result.Error
+		return types.UserModel{}, result.Error
 	}
 
 	return user, nil

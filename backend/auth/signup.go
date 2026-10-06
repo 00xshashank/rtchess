@@ -10,14 +10,14 @@ import (
 	"github.com/00xshashank/rtchess/backend/types"
 )
 
-func signup(user types.User) error {
+func signup(user types.UserModel) error {
 	hashed_password, pwd_err := hashPassword(user.Password)
 	if pwd_err != nil {
 		return pwd_err
 	}
 
 	user.Password = string(hashed_password)
-	return db.AddUser(user)
+	return db.AddUserToDB(user)
 }
 
 func SignupHandler(w http.ResponseWriter, r *http.Request) {
@@ -42,7 +42,7 @@ func SignupHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	var user types.User
+	var user types.UserModel
 	json_err := json.Unmarshal(body, &user)
 	if json_err != nil {
 		log.Printf("Error while decoding JSON in signup handler: %s\n", json_err)

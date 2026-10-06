@@ -2,8 +2,11 @@ package auth
 
 import (
 	"errors"
+	"os"
+	"time"
 
 	"github.com/00xshashank/rtchess/backend/types"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -21,7 +24,7 @@ func checkPasswordHash(password []byte, hash []byte) bool {
 	return true
 }
 
-func checkUserValidity(user types.User) error {
+func checkUserValidity(user types.UserModel) error {
 	if len(user.Username) < 6 {
 		return errors.New("Username length should be at least 6")
 	}
@@ -42,4 +45,22 @@ func checkUserValidity(user types.User) error {
 	}
 
 	return nil
+}
+
+func getJWT(user types.UserModel) (string, error) {
+	secret := os.Getenv("JWT_SECRET")
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"iss": "bsdk",
+		"usr": user.Username,
+		"eml": user.Email,
+		"fnm": user.Firstname,
+		"lnm": user.Lastname,
+		"iat": time.Now().Unix(),
+		"exp": time.Now().Add(time.Hour * 24 * 7).Unix(),
+	})
+
+	key, err := token.SignedString([]byte(secret))
+
+	return key, err
 }

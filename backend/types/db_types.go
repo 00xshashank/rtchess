@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type User struct {
+type UserModel struct {
 	gorm.Model
 	Username  string `json:"username"`
 	Firstname string `json:"firstname"`
@@ -15,10 +15,14 @@ type User struct {
 	Password  string `json:"password"`
 }
 
-type Game struct {
-	Player1   User
-	Player2   User
+type GameModel struct {
+	Player1   UserModel
+	Player2   UserModel
 	Moves     []string
 	StartedAt time.Time
 	WhiteWon  bool
+}
+
+func (UserModel) TableName() string {
+	return "users"
 }
