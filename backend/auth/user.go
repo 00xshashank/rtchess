@@ -12,7 +12,14 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func GetUserFromCookie(token *jwt.Token) (types.User, error) {
+func GetUserFromCookie(cookie *http.Cookie) (types.User, error) {
+	token, token_err := jwt.ParseWithClaims(cookie.Value, &jwtClaims{}, func(t *jwt.Token) (any, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if token_err != nil {
+		return types.User{}, token_err
+	}
+
 	exp_time, exp_err := token.Claims.GetExpirationTime()
 	if exp_err != nil {
 		log.Printf("Error while getting expiration time: %s\n", exp_err)
@@ -23,7 +30,17 @@ func GetUserFromCookie(token *jwt.Token) (types.User, error) {
 		return types.User{}, errors.New("Session Expired")
 	}
 
-	var user types.User = types.User{}
+	claims, ok := token.Claims.(*jwtClaims)
+	if !ok {
+		return types.User{}, errors.New("Failed to parse cookie")
+	}
+
+	var user types.User = types.User{
+		Firstname: claims.Username,
+		Lastname:  claims.Lastname,
+		Email:     claims.Email,
+		Username:  claims.Username,
+	}
 
 	return user, nil
 }
@@ -36,16 +53,7 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
 	}
 
-	token, token_err := jwt.ParseWithClaims(cookie.Value, &jwtClaims{}, func(t *jwt.Token) (any, error) {
-		return []byte(os.Getenv("JWT_SECRET")), nil
-	})
-	if token_err != nil {
-		log.Printf("Error while decoding token: %s\n", token_err)
-		w.Write([]byte(token_err.Error()))
-		w.WriteHeader(403)
-	}
-
-	user, user_err := GetUserFromCookie(token)
+	user, user_err := GetUserFromCookie(cookie)
 	if user_err != nil {
 		log.Printf("Error while getting user: %s\n", user_err)
 		w.Write([]byte(user_err.Error()))

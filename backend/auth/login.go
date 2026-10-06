@@ -62,7 +62,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		http.SetCookie(w, &cookie)
-		log.Printf("Set cookie: %s\n", &cookie)
 
 		w.Write([]byte("true"))
 	} else {
