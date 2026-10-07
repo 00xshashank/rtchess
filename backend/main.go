@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/00xshashank/rtchess/backend/auth"
 	"github.com/00xshashank/rtchess/backend/db"
+	"github.com/00xshashank/rtchess/backend/routes"
 	"github.com/joho/godotenv"
 )
 
@@ -29,15 +29,13 @@ func main() {
 	PORT := 3000
 
 	muxer := http.NewServeMux()
-	muxer.HandleFunc("/signup", auth.SignupHandler)
-	muxer.HandleFunc("/login", auth.LoginHandler)
-	muxer.HandleFunc("/getuser", auth.GetUserHandler)
+	muxer.Handle("/auth/{wildcard}", http.StripPrefix("/auth", &routes.AuthMuxer))
 
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", PORT),
 		Handler: muxer,
 	}
 
-	fmt.Printf("Starting server on port: %d\n", PORT)
+	log.Printf("Starting server on port: %d\n", PORT)
 	log.Fatal(server.ListenAndServe())
 }

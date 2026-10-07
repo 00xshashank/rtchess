@@ -7,6 +7,7 @@ import (
 	"github.com/00xshashank/rtchess/backend/types"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var db *gorm.DB
@@ -21,33 +22,19 @@ func InitDB() error {
 	)
 
 	var db_err error
-	db, db_err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, db_err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if db_err != nil {
 		fmt.Printf("Error while opening connection to a database: %s\n", db_err)
 		return db_err
 	}
 
-	db.AutoMigrate(&types.UserModel{})
+	db.AutoMigrate(
+		&types.UserModel{},
+		&types.GameModel{},
+		&types.MoveModel{},
+	)
 
 	return nil
-}
-
-func AddUserToDB(user types.UserModel) error {
-	result := db.Create(&user)
-	if result.Error != nil {
-		return result.Error
-	}
-
-	return nil
-}
-
-func GetUserFromDB(username string) (types.UserModel, error) {
-	var user types.UserModel
-
-	result := db.First(&user, "username = ?", username)
-	if result.Error != nil {
-		return types.UserModel{}, result.Error
-	}
-
-	return user, nil
 }
