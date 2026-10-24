@@ -1,6 +1,6 @@
 package db
 
-import "github.com/00xshashank/rtchess/backend/types"
+import "github.com/00xshashank/rtchess/backend/backend/types"
 
 func AddUserToDB(user types.UserModel) error {
 	result := db.Create(&user)

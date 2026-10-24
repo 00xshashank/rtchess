@@ -11,6 +11,7 @@ type UserModel struct {
 	Lastname  string `json:"lastname"`
 	Email     string `json:"email"`
 	Password  string `json:"password"`
+	Rating    uint   `json:"rating"`
 }
 
 func (UserModel) TableName() string {

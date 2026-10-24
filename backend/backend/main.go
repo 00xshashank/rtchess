@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/00xshashank/rtchess/backend/db"
-	"github.com/00xshashank/rtchess/backend/routes"
+	"github.com/00xshashank/rtchess/backend/backend/db"
+	"github.com/00xshashank/rtchess/backend/backend/routes"
+	"github.com/00xshashank/rtchess/backend/backend/ws"
 	"github.com/joho/godotenv"
 )
 
@@ -23,6 +24,8 @@ func init() {
 		fmt.Printf("Failed to initialize database: %s\n", db_err)
 		os.Exit(124)
 	}
+
+	db.InitRedis()
 }
 
 func main() {
@@ -30,6 +33,8 @@ func main() {
 
 	muxer := http.NewServeMux()
 	muxer.Handle("/auth/{wildcard}", http.StripPrefix("/auth", &routes.AuthMuxer))
+	muxer.Handle("/game/{wildcard}", http.StripPrefix("/game", &routes.GameMuxer))
+	muxer.Handle("/join", routes.AuthMiddleware(http.HandlerFunc(ws.JoinGameHandler)))
 
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", PORT),

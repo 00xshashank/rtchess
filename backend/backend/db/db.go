@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/00xshashank/rtchess/backend/types"
+	"github.com/00xshashank/rtchess/backend/backend/types"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
